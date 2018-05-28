@@ -1,0 +1,50 @@
+Examples:-
+
+variables.
+hasType([(variable(x), intT)], variable(x), T).
+
+integers.
+hasType(Gamma, const(8), intT).
+
+booleans.
+hasType(Gamma, true, boolT).
+
+constructors.
+hasType(Gamma, constructor("a_star",tuple([const(1), const(7)])), T).
+
+case_analysis_types.
+hasType([(variable("x"), intT)], switch_case(variable("x"), [(const(5), const(10)),(default, const(1))]), A).
+
+arithmetic operations.
+hasType(Gamma, plus(const(6), const(1)), intT).
+
+logical operations.
+hasType(Gamma, or(and(false, true), implies(false, false)), T).
+
+comparison operations.
+hasType(Gamma, lessThan(const(18),times(const(4), const(29))),T).
+
+equal operation.
+hasType(Gamma, equal(and(true, false), not(false)), T).
+
+conditionals.
+hasType([(variable(x),boolT),(variable(z), boolT)], if_then_else(or(variable(x), variable(z)), mod(const(99), const(2)), expo(const(1000),const(99))), T).
+
+qualified expressions.
+hasType([],let_in_end(parallel(def(variable(a),true),def(variable(b),false);def(variable(c),not(not(false)))),and(variable(a),implies(variable(b),variable(c)))), T).
+
+function abstractions.
+hasType([], abs(variable(x), plus(variable(x), const(99))), arrowT(intT, intT)).
+
+function call.
+hasType([], functionCall(abs(variable(x), plus(variable(x), const(99))), div(const(54), const(9))), T).
+
+tuple.
+hasType([], tuple([const(1), const(3), true, functionCall(abs(variable(x), plus(variable(x), const(99))), div(const(54), const(9)))]), T).
+
+projections.
+hasType([], proj(2, tuple([const(1), const(3), true, functionCall(abs(variable(x), plus(variable(x), const(99))), div(const(54), const(9)))])), T).
+
+
+Does not work for polymorphic type inference
+

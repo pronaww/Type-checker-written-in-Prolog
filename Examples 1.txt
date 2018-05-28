@@ -1,0 +1,126 @@
+%variables
+hasType([(variable("X"), (intT)),(variable("Y"), (intT))],variable("X"),T).
+T: intT
+
+hasType([(variable("X"), (boolT)),(variable("X"), (intT))],variable("X"),T).
+T: boolT
+
+%Constants
+hasType([],const(-652),T).
+T: intT
+
+hasType([],true,T).
+T: boolT
+
+%arithmetic
+hasType([],plus(minus(const(2),const(5)), div(const(6),times(const(2),const(5)))),T).
+T: intT / floatT
+
+%boolean
+hasType([(variable("X"), (boolT))],and(implies(or(variable("X"), false), true),implies(variable("X"), not(false))),T).
+T: boolT
+
+%comparison
+%y should have intT
+hasType([(variable("X"), (boolT)),(variable("Y"), (boolT))],or(and(greaterThan(const(-2), const(6)), lessThan(const(3),const(100))),implies(equal(const(5), variable("Y")), variable("X"))),T).
+T: boolT
+
+%equality
+%uncomparable!
+hasType([],equal(tuple([tuple([const(1),const(3)]),true]),tuple([const(1), const(3),true])),T).
+T: boolT
+
+%if then else
+hasType([(variable("X"), (boolT)),(variable("Y"), (intT))],if_then_else(and(variable("X"),greaterThan(variable("Y"),0)),variable("Y"),variable("X")),T).
+T: ----- shouldn't run - false (if not polymorphism)
+
+%let d in e
+hasType([(variable("Y"), (intT))],let_in_end(def(variable("X"),const(3)),plus(variable("Y"),variable("X"))),T).
+T: intT
+
+hasType([(variable(x), (intT))],let_in_end(def(variable(y),const(3)),times(variable(y),const(5))),T).
+T: intT
+
+%abstraction
+hasType( [(variable(x),  (boolT)), (variable(w),  (boolT))], abs(variable(x), variable(w)), arrowT( (boolT),  (boolT))).
+Answer :true
+
+hasType( [(variable(x),  (boolT)), (variable(w),  (boolT))], abs(variable(x), variable(w)), arrowT( (boolT),  (boolT))). 
+Answer :----- same as above
+
+%application
+hasType([(variable(r), arrowT( (boolT), (boolT))), (variable(s),  (boolT))], functionCall(variable(r), variable(s)),  (boolT)).
+Answer : true
+
+hasType([(variable(r), arrowT( (boolT), (boolT))), (variable(s),  (boolT)), (variable(s),  (boolT)), (variable(r), arrowT( (boolT), (boolT)))], functionCall(variable(r), variable(s)), X).
+Answer: x: boolT
+
+
+%n-tuplele
+hasType([(variable(x),  (boolT)), (variable(w),  (boolT))], tuple([variable(x), variable(w), and(variable(x), variable(y))]), cartesianT( [(boolT),  (boolT)])).
+Answer: false
+
+%projection
+%w is not defined
+hasType([(variable(y),  (boolT)), (variable(z),  (boolT))], proj(1,tuple([variable(x), variable(w), and(variable(x), variable(y))])),  (boolT)).
+Answer: true
+
+%constructors
+%what is disjunction?
+hasType([(variable(r),  (boolT))] ,constructor("inl",(variable(r))), disjunction( (boolT), (boolT))).
+Answer: don't know
+hasType([(variable(r),  (boolT))] ,constructor("inl",(variable(r))), X).
+Answer: don't know
+
+%what is disjunction?
+hasType([(variable(r),  (boolT))] ,constructor("inl",(variable(r))), disjunction( (boolT), (boolT))).
+Answer: don't know
+
+%case analysis
+
+hasType([(variable(t),  (boolT)), (variable(r),  (boolT))], switch_case(inl(variable(t)), variable(r)),  (boolT)).
+Answer: don't know
+
+hasType([(variable(t),  (boolT)), (variable(r),  (boolT))], case(inr(variable(t)), variable(r)),  (boolT)).
+Answer: don't know
+
+
+%type elaborates
+
+typeElaborate([],def(variable("X"),plus(const(3),const(4))),T).
+T: [X: intT]
+typeElaborate([],def(variable("Y"),true),T).
+T: [Y: boolT]
+typeElaborate([],parallel(def(variable("X"),const(3)),def(variable("Y"),true)),T).
+T: [x: intT, Y: boolT]
+typeElaborate([],parallel(def(variable("X"),const(3)),def(variable("X"),true)),T).
+Answer: shouldn't give any answer
+
+typeElaborate([],(def(variable("X"),times(const(31),const(20))));(def(variable("Y"),true)),T).
+Answer: X: intT Y: boolT
+
+typeElaborate([(variable("X"),boolT),(variable("Y"),intT)], local_in(def(variable("X"),const(31)), parallel(def(variable("X"),tuple([variable("Y")])),def(variable("Y"),false))),T).
+X: [intT] , y: boolT
+
+typeElaborate([(variable("X"),boolT),(variable("Y"),intT)], local_in( def(variable("X"),const(20)), parallel(def(variable("X"),const(3)),def(variable("Y"),false))),T).
+X: int Y: boolT
+
+typeElaborate([(variable(x), (intT))],def(variable(y),const(9)),Gamma).
+
+Y: intT
+
+typeElaborate([(variable(x), (intT))],(def(variable(z),true));(def(variable(y),false)),Gamma).
+z: boolT, y: boolT
+
+typeElaborate([(variable(x), (intT))],parallel(def(variable(z),const(9)),def(variable(y),const(0))),Gamma).
+z: intT, y: intT
+
+typeElaborate([(variable(x), (intT))],local_in(def(variable(z),const(9)),def(variable(y),const(4))),Gamma).
+y: intT
+
+typeElaborate([(variable(x), (intT))],parallel((def(variable(z),const(8)));(def(variable(y),true)),def(variable(y),false)),Gamma).
+%this is not parallel so false.
+Answer: y: boolT z: intT
+
+typeElaborate([(variable(x), (intT))],(parallel(def(variable(z),const(45)), def(variable(y),false)));(def(variable(y),const(8))),Gamma).
+z:int y:int
