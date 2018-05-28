@@ -78,9 +78,7 @@ and
 
 T ranges over (at least)
 
-Type variables modelled as say TypeVar(A)	1/3	
-https://moodle.iitd.ac.in/mod/assign/view.php?id=19012		
- 
+Type variables modelled as say TypeVar(A)	1/3	 
 
 Base types intT, boolT, ...	Assignment	
 5/28/2018		
